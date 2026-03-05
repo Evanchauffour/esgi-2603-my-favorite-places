@@ -1,0 +1,19 @@
+FROM node:25.8.0-alpine3.23
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+COPY tsconfig.json tsconfig.json
+COPY tsconfig.app.json tsconfig.app.json
+COPY tsconfig.node.json tsconfig.node.json
+COPY vite.config.ts vite.config.ts
+COPY index.html index.html
+COPY public public
+COPY src src
+
+RUN npm run build
+
+CMD ["npx", "vite", "preview", "--host", "--port", "5173"]
