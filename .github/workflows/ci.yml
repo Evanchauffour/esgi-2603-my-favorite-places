@@ -1,5 +1,5 @@
 name: Compile application
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+run-name: ${{ github.actor }} is building application docker images
 on: 
   push:
     branches: [ main ]
@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v5
-      - name: Build docker images
-        run: docker build ./server --file ./server/dockerfile --tag server
-        run: docker build ./client --file ./client/dockerfile --tag client
+      - name: Build server docker image
+        run: docker build ./server --file ./server/dockerfile --tag server-image
+      - name: Build client docker image
+        run: docker build ./client --file ./client/dockerfile --tag client-image
