@@ -1,0 +1,15 @@
+name: Compile application
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: 
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v5
+      - name: Build docker images
+        run: docker build ./server --file ./server/dockerfile --tag server
+        run: docker build ./client --file ./client/dockerfile --tag client
