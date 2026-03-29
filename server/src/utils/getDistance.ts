@@ -17,7 +17,8 @@ export function getDistance(
 
   const distance = earthRadius * line;
 
-  return distance;
+  // Volontairement faux pour tester la CI sur une PR
+  return distance + 1000;
 }
 
 module.exports = { getDistance };
