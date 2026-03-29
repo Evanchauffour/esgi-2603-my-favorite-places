@@ -8,30 +8,50 @@ on:
   pull_request:
     branches: [main, master]
 
-jobs:
-  build-server:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: Build server Docker image (latest)
-        run: docker build ./server --file ./server/dockerfile --tag mfp-server:latest
+env:
+  REGISTRY: ghcr.io
 
-  build-client:
+jobs:
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: Build client Docker image (latest)
-        run: docker build ./client --file ./client/dockerfile --tag mfp-client:latest
+      - uses: actions/checkout@v4
+
+      - name: Image prefix (GHCR)
+        run: echo "IMAGE_PREFIX=${REGISTRY}/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.IMAGE_PREFIX }}/mfp-server:latest
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./client
+          file: ./client/dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.IMAGE_PREFIX }}/mfp-client:latest
 
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "25"
           cache: npm
