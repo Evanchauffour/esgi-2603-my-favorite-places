@@ -1,16 +1,44 @@
-name: Compile application
-run-name: ${{ github.actor }} is building application docker images
-on: 
-  push:
-    branches: [ "main" ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
+name: CI
 
+run-name: ${{ github.actor }} — build images & tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-server:
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v5
-      - name: Build server docker image
-        run: docker build ./server --file ./server/dockerfile --tag server-image
-      - name: Build client docker image
-        run: docker build ./client --file ./client/dockerfile --tag client-image
+        uses: actions/checkout@v4
+      - name: Build server Docker image (latest)
+        run: docker build ./server --file ./server/dockerfile --tag mfp-server:latest
+
+  build-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Build client Docker image (latest)
+        run: docker build ./client --file ./client/dockerfile --tag mfp-client:latest
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25"
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+      - name: Run tests
+        working-directory: server
+        run: npm test

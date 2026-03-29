@@ -19,3 +19,5 @@ export function getDistance(
 
   return distance;
 }
+
+module.exports = { getDistance };
