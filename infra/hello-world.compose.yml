@@ -1,0 +1,5 @@
+services:
+  hello-world:
+    image: traefik/whoami:latest
+    deploy:
+      replicas: 2

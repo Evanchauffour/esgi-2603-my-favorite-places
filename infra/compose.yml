@@ -1,0 +1,14 @@
+services:
+  manager:
+    build: .
+    privileged: true
+    ports:
+      - "80:80"
+    volumes:
+      - manager_data:/home/manager
+  node:
+    build: .
+    privileged: true
+
+volumes:
+  manager_data:
