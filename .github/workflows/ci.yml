@@ -37,15 +37,21 @@ jobs:
         with:
           context: ./server
           file: ./server/dockerfile
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.IMAGE_PREFIX }}/mfp-server:latest
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/mfp-server:latest
+            ${{ env.IMAGE_PREFIX }}/mfp-server:${{ github.ref_name }}
 
       - uses: docker/build-push-action@v5
         with:
           context: ./client
           file: ./client/dockerfile
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.IMAGE_PREFIX }}/mfp-client:latest
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/mfp-client:latest
+            ${{ env.IMAGE_PREFIX }}/mfp-client:${{ github.ref_name }}
 
   test:
     runs-on: ubuntu-latest

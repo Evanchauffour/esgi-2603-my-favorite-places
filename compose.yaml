@@ -1,6 +1,7 @@
  services: 
   api:
-    build: ./server
+    image: ghcr.io/evanchauffour/esgi-2603-my-favorite-places/mfp-server:latest
+    platform: linux/amd64
     ports:
       - 3000:3000
     depends_on:

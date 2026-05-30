@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  api:
+    image: ghcr.io/evanchauffour/esgi-2603-my-favorite-places/mfp-server:main
+    environment:
+      POSTGRES_PASSWORD: supersecret
+    networks:
+      - backend
+      - web
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.mfp-api.rule=Host(`apimfp.swarm.localhost`)"
+        - "traefik.http.routers.mfp-api.entrypoints=web"
+        - "traefik.http.services.mfp-api.loadbalancer.server.port=3000"
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecret
+      POSTGRES_DB: postgres
+    volumes:
+      - mfp-db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  backend:
+    driver: overlay
+  web:
+    external: true
+
+volumes:
+  mfp-db-data:
