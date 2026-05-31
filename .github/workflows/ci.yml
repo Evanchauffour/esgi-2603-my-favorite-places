@@ -12,7 +12,24 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "25"
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+      - name: Run tests
+        working-directory: server
+        run: npm test
+
   build-and-push:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -52,19 +69,3 @@ jobs:
           tags: |
             ${{ env.IMAGE_PREFIX }}/mfp-client:latest
             ${{ env.IMAGE_PREFIX }}/mfp-client:${{ github.ref_name }}
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "25"
-          cache: npm
-          cache-dependency-path: server/package-lock.json
-      - name: Install dependencies
-        working-directory: server
-        run: npm ci
-      - name: Run tests
-        working-directory: server
-        run: npm test
